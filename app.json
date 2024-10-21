@@ -1,0 +1,38 @@
+{
+  "expo": {
+    "name": "dagu-chat",
+    "slug": "dagu-chat",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/images/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.sekuti.daguchat",
+      "permissions": [
+        "CAMERA",
+        "RECORD_AUDIO"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/image/dagu.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "c16cfe25-d76b-4711-83c1-56118a05ab35"
+      }
+    },
+    "owner": "sekuti"
+  }
+}
