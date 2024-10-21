@@ -1,9 +1,11 @@
 import React, { useCallback, useEffect, useState, useContext } from "react";
-import { Text, View, StyleSheet, TouchableOpacity, ScrollView, Image } from "react-native";
+import { View, StyleSheet, TouchableOpacity, ScrollView, Image } from "react-native";
+import {  Card, Text } from 'react-native-paper';
+
 import ContactRow from "../components/ContactRow";
 import { colors } from "../config/constants";
-import Cell from "../components/Cell";
-import { collection, doc, where, query, onSnapshot, orderBy, setDoc, deleteDoc, getDocs } from 'firebase/firestore';
+//import Cell from "../components/Cell";
+import { collection, getDocs } from 'firebase/firestore';
 import { database } from '../config/firebase';
 import { ImportantContext} from '../App';
 
@@ -51,8 +53,8 @@ const NewsList = ({ navigation }) => {
               
                 {
                     waiting && broadcasts.map( (broadcast, index) => (
-                    <React.Fragment key={index}>
-                     <ContactRow
+                    <React.Fragment key={index} >
+                     {/* <ContactRow
                         name ={broadcast.title}
                         subtitle={broadcast.description?.slice(0,125)}
                         imageUrl = {broadcast.imageUrl}
@@ -62,7 +64,22 @@ const NewsList = ({ navigation }) => {
                                broadcast: broadcast
                             });
                         }}
-                        />
+                        /> */}
+                    <TouchableOpacity
+                    
+                     onPress={() => {
+                        navigation.navigate('News Detail', {
+                           broadcast: broadcast
+                        });
+                    }}>
+                        <Card style={styles.contactRow}>
+                            <Card.Content>
+                                <Card.Cover source={broadcast.imageUrl}/>
+                                <Text variant="titleLarge">{broadcast.title}</Text>
+                                <Text variant="bodyMedium">{broadcast.description?.slice(0,125)}</Text>
+                            </Card.Content>
+                        </Card>
+                    </TouchableOpacity>
                     </React.Fragment>       
                      ))  
                 }
@@ -94,7 +111,8 @@ const styles = StyleSheet.create({
         borderWidth: StyleSheet.hairlineWidth,
         borderColor: colors.primary,
         borderRadius: 10,
-        margin: 3,
+        marginHorizontal: 20,
+        marginVertical: 10,
     },
     somestyles: {
         marginTop: 20,
