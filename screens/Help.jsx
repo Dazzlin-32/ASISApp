@@ -1,5 +1,7 @@
-import React from "react";
-import { Text, View, StyleSheet, Alert } from "react-native";
+import React , {useState} from "react";
+import { Text, View, StyleSheet, Image } from "react-native";
+import { Avatar, Card, IconButton } from 'react-native-paper';
+import { Button, Snackbar } from 'react-native-paper';
 import { colors } from "../config/constants";
 import Separator from "../components/Separator";
 import Cell from "../components/Cell";
@@ -8,35 +10,68 @@ import { auth } from '../config/firebase';
 const Help = ({ navigation }) => {
     const phoneNumber = '+251911121314'
 
+    const [visibleAbout, setVisibleAbout] = useState(false);
+
+    const [visibleContact, setVisibleContact] = useState(false);
+
+    const onToggleSnackBarAbout = () => setVisibleAbout(!visibleAbout);
+  
+    const onDismissSnackBarAbout = () => setVisibleAbout(false);
+
+    const onToggleSnackBarContact = () => setVisibleContact(!visibleContact);
+  
+    const onDismissSnackBarContact = () => setVisibleContact(false);
+
     return (
-        <View>
-            <Cell
-                title='Contact us'
-                subtitle='Questions? Need help?'
-                icon='people-outline'
-                tintColor={colors.primary}
-                onPress={() => {
-                    alert("Please Call 911")
-                }}
-                showForwardIcon={false}
-                style={{ marginTop: 20 }}
-            />
-            <Cell
-                title='App info'
-                icon='information-circle-outline'
-                tintColor={colors.pink}
-                onPress={() => {
-                    Alert.alert('React Native Chat App', 'Asli Group',
-                        [
-                            {
-                                text: "Ok",
-                                onPress: () => { },
-                            },
-                        ],
-                        { cancelable: true })
-                }}
-                showForwardIcon={false}
-            />
+        <View >
+            <Button  
+            style={styles.contactRow}
+            onPress={onToggleSnackBarAbout}>
+                <Card style={{backgroundColor: "white"}}>
+
+                <Card.Title  style={{backgroundColor: "white"}}
+                    title="About App"
+                    // left={(props) => <Avatar.Icon {...props} icon="folder" />}
+                    // right={(props) => <IconButton {...props} icon="dots-vertical" onPress={() => {}} />}
+                />
+                </Card>
+            </Button>
+            <Button  
+            style={styles.contactRow}
+            onPress={onToggleSnackBarContact}>
+                <Card style={{backgroundColor: "white"}}>
+                <Card.Title style={{backgroundColor: "white"}}
+                    title="Contact Info"
+                />
+                </Card>
+            </Button>
+            <Image 
+            style={styles.logotwo}
+            source={require('../assets/images/dagu.png')}/>
+      <Snackbar
+        visible={visibleAbout}
+        onDismiss={onDismissSnackBarAbout}
+        action={{
+          label: 'Close',
+          onPress: () => {
+            // Do something
+          },
+        }}>
+        Version 1.0.0
+      </Snackbar>
+
+      <Snackbar
+        visible={visibleContact}
+        onDismiss={onDismissSnackBarContact}
+        action={{
+          label: 'Close',
+          onPress: () => {
+            // Do something
+          },
+        }}>
+            Call +251932121314
+      </Snackbar>
+      
 
         </View>
     )
@@ -45,10 +80,17 @@ const Help = ({ navigation }) => {
 const styles = StyleSheet.create({
     contactRow: {
         backgroundColor: 'white',
-        marginTop: 16,
-        borderTopWidth: StyleSheet.hairlineWidth,
-        borderColor: colors.border
-    }
+        marginHorizontal: 10,
+        marginVertical: 10,
+        padding: 5,
+        margin: 5
+    },
+    logotwo: {
+        width: 150,
+        height:150,
+        margin:120
+      },
+  
 })
 
 export default Help;
