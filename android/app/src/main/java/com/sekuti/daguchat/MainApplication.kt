@@ -1,4 +1,4 @@
-package com.sekuti.daguchat
+package com.asisapp
 
 import android.app.Application
 import android.content.res.Configuration

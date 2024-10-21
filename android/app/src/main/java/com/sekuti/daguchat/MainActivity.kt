@@ -1,4 +1,4 @@
-package com.sekuti.daguchat
+package com.asisapp
 
 import android.os.Build
 import android.os.Bundle

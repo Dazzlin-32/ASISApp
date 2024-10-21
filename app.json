@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "dagu-chat",
-    "slug": "dagu-chat",
+    "name": "asisapp",
+    "slug": "asisapp",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -19,7 +19,7 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.sekuti.daguchat",
+      "package": "com.asisapp",
       "permissions": [
         "CAMERA",
         "RECORD_AUDIO"
