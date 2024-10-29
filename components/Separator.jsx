@@ -11,7 +11,7 @@ const Separator = () => {
 const styles = StyleSheet.create({
     separator: {
         height: StyleSheet.hairlineWidth,
-        backgroundColor: colors.border,
+        backgroundColor: colors.primary,
     },
 })
 

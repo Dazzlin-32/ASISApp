@@ -1,4 +1,4 @@
-import { colors } from "../config/constants";
+import { colors } from '../config/constants';
 import Separator from "../components/Separator";
 import Cell from "../components/Cell";
 import { auth } from '../config/firebase';

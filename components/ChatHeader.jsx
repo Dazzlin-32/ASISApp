@@ -3,26 +3,31 @@ import { Image, View, Text, StyleSheet } from 'react-native';
 import { colors } from '../config/constants';
 import { TouchableOpacity } from 'react-native';
 import { Ionicons} from '@expo/vector-icons';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView , useSafeAreaInsets} from 'react-native-safe-area-context';
+import { StatusBar, Platform } from 'react-native';
+import { Appbar } from 'react-native-paper';
+
 
 export function ChatHeader({navigation, titleOne, subtitle, }) {
+  const insets = useSafeAreaInsets(); 
  
   return (
     
-      <View style={styles.header}>
-          
-        <Image
-          source={require('../assets/images/icon.png')}
-          style={styles.logo}
-        />
-        <View  >
-          <Text style={styles.title}>{titleOne}</Text>
-          <Text style={styles.online}>{subtitle}</Text>
-        </View>
-        
-      
-      
-      </View>
+    // <SafeAreaView  style={styles.header}>
+    //       <Image
+    //         source={require('../assets/images/icon.png')}
+    //         style={styles.logo}
+    //       />
+    //       <View  >
+    //         <Text style={styles.title}>{titleOne}</Text>
+    //         <Text style={styles.online}>{subtitle}</Text>
+    //       </View>
+    // </SafeAreaView>
+    <Appbar.Header>
+    <Appbar.Content title="Title" />
+     <Appbar.Action icon="magnify" onPress={() => {}} />
+    
+ </Appbar.Header>
     
   );
 }
@@ -30,17 +35,18 @@ export function ChatHeader({navigation, titleOne, subtitle, }) {
 const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
-    // alignItems: 'center',
+    alignItems: 'center',
     justifyContent: 'center',
     height: 100,
     backgroundColor: colors.primary,
     borderBottomLeftRadius: 30,
-   paddingTop: 30,
-   paddingLeft: 10,
-   paddingRight:10,
-  
-
-
+    borderBottomEndRadius:30,
+    borderColor: "black",
+    borderWidth: 1,
+    // marginTop: 0,
+    // paddingTop: 20,
+    paddingLeft: 10,
+    paddingRight:10,
   },
   logo: {
     width: 50,

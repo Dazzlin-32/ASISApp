@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { View, StyleSheet, ScrollView, Image, TouchableOpacity } from "react-native";
-import { colors } from "../config/constants";
+import { colors } from '../config/constants';
 import { Avatar, Button, Card, Text } from 'react-native-paper';
 // import Icon from "react-native-vector-icons/FontAwesome";
 // import Separator from "../components/Separator";

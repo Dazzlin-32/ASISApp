@@ -9,6 +9,7 @@
     "web": "expo start --web"
   },
   "dependencies": {
+    "@react-native-community/geolocation": "^3.4.0",
     "@react-native-community/slider": "4.5.2",
     "@react-native-firebase/app": "^20.4.0",
     "@react-native-firebase/database": "^20.4.0",
@@ -16,6 +17,7 @@
     "@react-navigation/native": "^6.1.18",
     "@react-navigation/native-stack": "^6.10.1",
     "@react-navigation/stack": "^6.4.1",
+    "axios": "^1.7.7",
     "crypto-js": "^3.1.9-1",
     "expo": "^51.0.23",
     "expo-av": "^14.0.6",

@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from 'react-native-vector-icons';
 
-const BadgeIcon = ({ iconName, badgeCount, size, color }) => {
+export const BadgeIcon = ({ iconName, badgeCount, size, color }) => {
   return (
     <View style={styles.iconContainer}>
       <Ionicons name={iconName} size={size} color={color} />
@@ -38,4 +38,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default BadgeIcon;
+// export default BadgeIcon;

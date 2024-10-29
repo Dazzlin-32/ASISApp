@@ -10,9 +10,11 @@ import { database ,storage} from '../config/firebase';
 import { arrayUnion, doc ,setDoc, updateDoc } from 'firebase/firestore';
 import uuid from 'react-native-uuid';
 import { ImportantContext} from '../App';
+import { colors } from '../config/constants';
 
 
-export default function CameraCom({setModal, lat, lng, length}) {
+
+export default function CameraCom({setModal, lat, lng, length, setMessages, messages}) {
   
     //const navigation = useNavigation()
     const context = useContext(ImportantContext)
@@ -30,7 +32,6 @@ export default function CameraCom({setModal, lat, lng, length}) {
     const [video, setVideo] = useState(null);
     const [isRecording, setIsRecording]  = useState(false);
     const [previousImage, setPreviousImage] = useState(null);
-
     const cameraRef = useRef(null);
     const videoRef = useRef(null);
 
@@ -147,71 +148,84 @@ export default function CameraCom({setModal, lat, lng, length}) {
     const fileName = assetInfo.uri.substring(assetInfo.uri.lastIndexOf('/') + 1);
     let arr  = fileName.split('.')
     fileType = 'Image/' + arr[1]
+
+    const newMessages = 
+    { id :  uuid.v4(),
+      createdAtr: new Date(),
+      user : 'Anonymous',
+      sent: "Sent",
+      image: assetInfo.uri,
+      }
+      
+    setMessages((prevMsgs) => [...prevMsgs, newMessages])
+    console.log(messages)
+    setModal(false)
+
     // Fetch the file from the local URI
-     const response = await fetch(assetInfo.uri);
-     const blob = await response.blob(); // Convert response to Blob
+    //  const response = await fetch(assetInfo.uri);
+    //  const blob = await response.blob(); // Convert response to Blob
     
-    const fileRef = ref(storage, `chats/${fileName}`);
-    const uploadTask = uploadBytesResumable(fileRef, blob);
+//     const fileRef = ref(storage, `chats/${fileName}`);
+//     const uploadTask = uploadBytesResumable(fileRef, blob);
     
 
-    uploadTask.on(
-      'state_changed',
-      () => {},
-      (error) => {
-        console.error('Upload failed:', error);
-      },)
-    try {
-        const fileUrl = await getDownloadURL(fileRef);
-        let data = {
-            _id: uuid.v4(),
-            createdAt: new Date(),
-            received: false,
-            sent: true,
-            text: '',
-            user : {
-              _id: '',
-              avatar: '',
-              name : 'anonymous'      
-            },
-            fileUrl,
-            filename: fileName,
-            fileType: fileType.toLowerCase(),
-          }
+//     uploadTask.on(
+//       'state_changed',
+//       () => {},
+//       (error) => {
+//         console.error('Upload failed:', error);
+//       },)
+//     try {
+//         const fileUrl = await getDownloadURL(fileRef);
+//         let data = {
+//             _id: uuid.v4(),
+//             createdAt: new Date(),
+//             received: false,
+//             sent: true,
+//             text: '',
+//             user : {
+//               _id: '',
+//               avatar: '',
+//               name : 'anonymous'      
+//             },
+//             fileUrl,
+//             filename: fileName,
+//             fileType: fileType.toLowerCase(),
+//           }
         
         
-        console.log("--------", data)
-        let location = []   
-            let flag = false
-            if( lat >= 90 || lng >= 90 || lat <0  || lng < 0 ){
-                flag= true
-                location.push(Math.random() * (11.7920 - 11.7820) + 11.7820)
-                location.push(Math.random() * (41.0130 - 41.0030) + 41.0030)
-            }
-            if(length === 0)
-              {
-                await setDoc(doc(database, 'newreports', context.chatID), {
-                  messages: arrayUnion(data),
-                  lastUpdated: Date.now(),
-              });
-              }
-              else{
+//         console.log("--------", data)
+//         let location = []   
+//             let flag = false
+//             if( lat >= 90 || lng >= 90 || lat <0  || lng < 0 ){
+//                 flag= true
+//                 location.push(Math.random() * (11.7920 - 11.7820) + 11.7820)
+//                 location.push(Math.random() * (41.0130 - 41.0030) + 41.0030)
+//             }
+//             if(length === 0)
+//               {
+//                 await setDoc(doc(database, 'newreports', context.chatID), {
+//                   messages: arrayUnion(data),
+//                   lastUpdated: Date.now(),
+//               });
+//               }
+//               else{
 
-                await updateDoc(doc(database, 'newreports', context.chatID), {
-                    messages: arrayUnion(data),
-                    lastUpdated: Date.now(),
-                });}
-          console.log("Added Successfully!")
-          setModal(false)
-      }
-      catch (e)
-      {
-        console.log(e)
-        alert('Error while uploading the picture. Please Try again ')
-        setModal(false)
-      }
-      setModal(false)
-}
+//                 await updateDoc(doc(database, 'newreports', context.chatID), {
+//                     messages: arrayUnion(data),
+//                     lastUpdated: Date.now(),
+//                 });}
+//           console.log("Added Successfully!")
+//           setModal(false)
+//       }
+//       catch (e)
+//       {
+//         console.log(e)
+//         alert('Error while uploading the picture. Please Try again ')
+//         setModal(false)
+//       }
+//       setModal(false)
+ //}
 
   // //function to get the last saved image from the 'DCIM' album created in the gallery by expo
   // const getLastSavedImage = async() => {
@@ -237,7 +251,7 @@ export default function CameraCom({setModal, lat, lng, length}) {
   //             setPreviousImage(null);
   //         }
   //     }
-  // }
+   }
 
   //function to record Video
   const startRecord = async() => {

@@ -3,7 +3,7 @@ import { View, StyleSheet, TouchableOpacity, ScrollView, Image } from "react-nat
 import {  Card, Text } from 'react-native-paper';
 
 import ContactRow from "../components/ContactRow";
-import { colors } from "../config/constants";
+import { colors } from '../config/constants';
 //import Cell from "../components/Cell";
 import { collection, getDocs } from 'firebase/firestore';
 import { database } from '../config/firebase';

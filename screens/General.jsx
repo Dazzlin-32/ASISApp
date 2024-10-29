@@ -1,6 +1,6 @@
 import React from "react";
 import { Text, View, StyleSheet, TouchableOpacity,Image  } from "react-native";
-import { colors } from "../config/constants";
+import { colors } from '../config/constants';
 import Cell from "../components/Cell";
 
 

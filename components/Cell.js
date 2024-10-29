@@ -1,6 +1,6 @@
 import React from "react";
 import { Text, View, StyleSheet, TouchableOpacity } from "react-native";
-import { colors } from "../config/constants";
+import { colors } from '../config/constants';
 import { Ionicons } from '@expo/vector-icons'
 
 const Cell = ({ title, icon, iconColor='white', tintColor, style, onPress, secondIcon, subtitle, showForwardIcon = true }) => {

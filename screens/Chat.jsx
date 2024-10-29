@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef, useContext } from 'react'
-import { View, StyleSheet, TouchableOpacity, Keyboard, Text, ActivityIndicator,  Animated, Easing,Button, Modal } from "react-native";
+import { View, StyleSheet, TouchableOpacity, Keyboard, ActivityIndicator,  Animated, Easing,Button, Modal, Alert, ScrollView } from "react-native";
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons'
 import { GiftedChat, Bubble, Send, InputToolbar } from 'react-native-gifted-chat'
 import { database ,storage} from '../config/firebase';
@@ -12,6 +12,8 @@ import * as ImagePicker from 'expo-image-picker';
 import uuid from 'react-native-uuid';
 import CameraCom from './CameraCom';
 import { ImportantContext} from '../App';
+import { TextInput } from 'react-native-paper';
+import { Surface, Text } from 'react-native-paper';
 
 function Chat({route}) {
 
@@ -47,7 +49,17 @@ function Chat({route}) {
       },
       type: 'report',
     }
-
+    //
+    useEffect(() => {
+      const intervalId = setInterval(() => {
+        // Your function to execute every 5 minutes
+        
+        // Call your function here
+      }, 5 * 60 * 1000); // 5 minutes in milliseconds
+  
+      // Cleanup function to clear the interval when the component unmounts
+      return () => clearInterval(intervalId);
+    }, []);
     
     //const [context.chatID, context.setcontext.chatID] = useState();
 
@@ -639,7 +651,7 @@ function Chat({route}) {
 
     return (
         <>
-            <GiftedChat
+            {/* <GiftedChat
                 messages={messages}
                 onSend={messages => onSend(messages)}
                 imageStyle={{
@@ -682,12 +694,31 @@ function Chat({route}) {
               lng = { route.params.lng}
               length = {messages.length} />
             </Modal>
-            }
+            } */}
+            <ScrollView >
+
+             <Surface style={styles.surface} elevation={4}>
+                <Text>Surface</Text>
+            </Surface>
+            </ScrollView>
+            <TextInput
+            secureTextEntry
+            mode='outlined'
+            left={<TextInput.Icon icon="camera"  />}
+            right= {<TextInput.Icon icon="eye" />}
+    />
         </>
     );
 }
 
 const styles = StyleSheet.create({
+  surface: {
+    padding: 8,
+    height: 80,
+    width: 80,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
     inputToolbar: {
         bottom: 6,
         marginLeft: 8,
@@ -715,7 +746,7 @@ const styles = StyleSheet.create({
 
     },
     scrollToBottomStyle: {
-        borderColor: colors.grey,
+        borderColor: colors.border,
         borderWidth: 2,
         width: 56,
         height: 56,

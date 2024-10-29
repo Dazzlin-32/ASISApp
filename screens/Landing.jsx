@@ -1,9 +1,9 @@
 import { TouchableOpacity , View, Text, Image, StyleSheet, ImageBackground} from 'react-native';
-import { colors } from '../config/constants';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import React, { useState, useEffect } from 'react';
 import * as Location from 'expo-location';
+import {colors} from   '../config/constants'
 // import Geolocation from '@react-native-community/geolocation';
 import { Platform, Permissions } from 'react-native';
 import { BlurView } from 'expo-blur';
@@ -14,6 +14,26 @@ function Landing() {
 
     const navigation = useNavigation()
     const [errorMsg, setErrorMsg] = useState(null);
+    // const [mLat, setMLat] = useState(0); //latitude position
+    // const [mLong, setMLong] = useState(0); //longitude position
+
+    // const getLocation = () => {
+    //     Geolocation.getCurrentPosition(
+    //       position => {
+    //         console.log(position);
+    //         setMLat(position.coords.latitude);
+    //         setMLong(position.coords.longitude);
+    //       },
+    //       error => {
+    //         // See error code charts below.
+    //         console.log(error.code, error.message);
+    //       },
+    //       {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
+    //     );
+    //     let location = await Location.getCurrentPositionAsync({
+    //         accuracy: Location.Accuracy.BestForNavigation,
+    //     });
+    //   };
     
     const handleStart = async () => {
          
@@ -22,24 +42,29 @@ function Landing() {
           setErrorMsg('Permission to access location was denied');
           return;
         }
-  
-        let location = await Location.getCurrentPositionAsync({
-            accuracy: Location.Accuracy.BestForNavigation,
-        });
+        // Geolocation.getCurrentPosition(
+        //     position => {
+        //       console.log(position);
+        //       setMLat(position.coords.latitude);
+        //       setMLong(position.coords.longitude);
+        //     },
+        //     error => {
+        //       // See error code charts below.
+        //       console.log(error.code, error.message);
+        //     },
+        //     {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
+        //   );
+       
         if(errorMsg)
             console.log("Error , ", errorMsg)
-        else if(location) {
-            //console.log(location,"-----")
-            navigation.navigate("Home",
-                {
-                    screen: 'Main',
-                    params: { lng: location.coords.longitude,
-                              lat : location.coords.latitude
-                     },
-                }
-            );
-
-        }
+        navigation.navigate("Home",
+            {
+                screen: 'Main',
+                params: { lng: "",
+                          lat : ""
+                 },
+            }
+        );
        
        
     }

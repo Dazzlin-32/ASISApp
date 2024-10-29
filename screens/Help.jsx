@@ -2,7 +2,7 @@ import React , {useState} from "react";
 import { Text, View, StyleSheet, Image } from "react-native";
 import { Avatar, Card, IconButton } from 'react-native-paper';
 import { Button, Snackbar } from 'react-native-paper';
-import { colors } from "../config/constants";
+import { colors } from '../config/constants';
 import Separator from "../components/Separator";
 import Cell from "../components/Cell";
 import { auth } from '../config/firebase';

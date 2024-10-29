@@ -19,6 +19,7 @@ import Test from './screens/Test';
 import NewsList from './screens/NewsList';
 import { PaperProvider } from 'react-native-paper';
 
+
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 export const ImportantContext = createContext({});
@@ -34,37 +35,10 @@ export const ImportantContext = createContext({});
 
   useEffect ( ()=>{
     setChatId(uuid.v4())
-
-    const getChatID = async () => {
-      try {
-        
-      const storedChatId = await AsyncStorage.getItem('chatID');
-      if (storedChatId !== null) {
-        setChatId(storedChatId);
-        // console.log("Chat ID" , chatID
-        return storedId;
-    }
-  }    
-    catch(err)
-    {
-      console.err(err)
-    }
-  }
   // getChatID()
   // getStoredUniqueId()
   }, [])
 
-  const getStoredUniqueId = async () => {
-    
-    let storedId = await AsyncStorage.getItem('');
-    
-    if (!storedId) {
-      storedId =" uuid.v4()";
-      await AsyncStorage.setItem('uniqueId', storedId);
-    }
-    
-    return storedId;
-  }; 
 
   return (
     <ImportantContext.Provider  value={{ badge, setBadge, chatID, setChatId }} >
@@ -79,24 +53,24 @@ const TabNavigation = () => (
 
   <Tab.Navigator
   screenOptions={({ route }) => ({
-    tabBarIcon: ({ focused, color, size }) => {
-      let iconName;
-      let badgeCount = 0; // Default badge count
+    // tabBarIcon: ({ focused, color, size }) => {
+    //   let iconName;
+    //   let badgeCount = 0; // Default badge count
 
-      if (route.name === 'Main') {
-        iconName = focused ? 'chatbubbles' : 'chatbubbles-outline';
-        badgeCount = 0; // no badge count for Main
-      } else if (route.name === 'News') {
-        iconName = focused ? 'newspaper' : 'newspaper-outline';
-        badgeCount = 5; // badge for General
-      }
-      else if (route.name === 'Information') {
-        iconName = focused ? 'information-circle' : 'information-circle-outline';
-        badgeCount = 0; // badge for General
-      }
+    //   if (route.name === 'Main') {
+    //     iconName = focused ? 'chatbubbles' : 'chatbubbles-outline';
+    //     badgeCount = 0; // no badge count for Main
+    //   } else if (route.name === 'News') {
+    //     iconName = focused ? 'newspaper' : 'newspaper-outline';
+    //     badgeCount = 5; // badge for General
+    //   }
+    //   else if (route.name === 'Information') {
+    //     iconName = focused ? 'information-circle' : 'information-circle-outline';
+    //     badgeCount = 0; // badge for General
+    //   }
 
-      return <BadgeIcon iconName={iconName} badgeCount={badgeCount} size={size} color={color} />;
-    },
+    //   return <BadgeIcon iconName={iconName} badgeCount={badgeCount} size={size} color={color} />;
+    // },
   })}
   > 
    
@@ -108,7 +82,7 @@ const TabNavigation = () => (
       subtitle='News' />
                }}/>
      <Tab.Screen 
-     name="Main" component={Chat} 
+     name="Main" component={Test} 
      options={ { 
        header: (props) => <ChatHeader 
        titleOne='AFAR PEACE AND SECURITY'
@@ -155,11 +129,9 @@ const MainStack = () => (
 
 
 export default function App() {
-
- 
-
+  
   return (
-    <PaperProvider>
+    <PaperProvider >
     <ImportantContextProvider>
       <NavigationContainer>
         <MainStack />
