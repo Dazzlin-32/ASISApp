@@ -151,7 +151,7 @@ export default function CameraCom({setModal, lat, lng, length, setMessages, mess
 
     const newMessages = 
     { id :  uuid.v4(),
-      createdAtr: new Date(),
+      createdAt: new Date(),
       user : 'Anonymous',
       sent: "Sent",
       image: assetInfo.uri,

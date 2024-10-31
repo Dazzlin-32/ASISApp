@@ -1,10 +1,10 @@
-import { TouchableOpacity , View, Text, Image, StyleSheet, ImageBackground} from 'react-native';
+import { TouchableOpacity , View, Text, Image, StyleSheet, ImageBackground ,  PermissionsAndroid, Alert, BackHandler}  from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import React, { useState, useEffect } from 'react';
 import * as Location from 'expo-location';
 import {colors} from   '../config/constants'
-// import Geolocation from '@react-native-community/geolocation';
+import Geolocation from '@react-native-community/geolocation';
 import { Platform, Permissions } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { database } from '../config/firebase';
@@ -13,27 +13,84 @@ import { collection, setDoc } from 'firebase/firestore';
 function Landing() {
 
     const navigation = useNavigation()
-    const [errorMsg, setErrorMsg] = useState(null);
-    // const [mLat, setMLat] = useState(0); //latitude position
-    // const [mLong, setMLong] = useState(0); //longitude position
+    const [errorMsg, setErrorMsg] = useState(null)
 
-    // const getLocation = () => {
-    //     Geolocation.getCurrentPosition(
-    //       position => {
-    //         console.log(position);
-    //         setMLat(position.coords.latitude);
-    //         setMLong(position.coords.longitude);
-    //       },
-    //       error => {
-    //         // See error code charts below.
-    //         console.log(error.code, error.message);
-    //       },
-    //       {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
-    //     );
-    //     let location = await Location.getCurrentPositionAsync({
-    //         accuracy: Location.Accuracy.BestForNavigation,
-    //     });
-    //   };
+    const [location, setLocation] = useState(null);
+
+    useEffect(() => {
+        const requestLocationPermission = async () => {
+          if (Platform.OS === 'android') {
+            try {
+              const granted = await PermissionsAndroid.requestMultiple([
+                PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+                PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION,
+              ]);
+    
+              if (granted['android.permission.ACCESS_FINE_LOCATION'] === PermissionsAndroid.RESULTS.GRANTED) {
+                // Location permission granted - start watching position
+                const watchId = Geolocation.watchPosition(
+                  (position) => {
+                    setLocation(position.coords);
+                    console.log("Postion", position.coords.longitude)
+                  },
+                  (error) => {
+                    switch (error.code) {
+                      case 1:
+                        console.log("Permission Denied:", error.message);
+                        break;
+                      case 2:
+                        console.log("Position Unavailable:", error.message);
+                        break;
+                      case 3:
+                        console.log("Timeout:", error.message);
+                        break;
+                      default:
+                        console.log("Unknown error:", error.message);
+                    }
+                  },
+                  { enableHighAccuracy: true, timeout: 55000, maximumAge: 10000 }
+                );
+    
+                return () => {
+                  Geolocation.clearWatch(watchId);
+                };
+              } else {
+                // Location permission denied - close the app
+                Alert.alert(
+                  "Permission Required",
+                  "Location permission is required to use this app.",
+                  [{ text: "OK", onPress: () => BackHandler.exitApp() }]
+                );
+              }
+            } catch (error) {
+              console.error("Failed to request location permission", error);
+            }
+          }
+        };
+    
+        requestLocationPermission();
+        console.log(location)
+      }, []);
+
+    // useEffect(() => {
+    // const watchId = Geolocation.watchPosition(
+    //     (position) => {
+    //     setLocation(position.coords);
+    //     },
+    //     (error) => {
+    //     console.error(error);   
+
+    //     },
+    //     { enableHighAccuracy: true }
+
+       
+    // );
+    // console.log("Location", location)
+
+    // return () => {
+    //     Geolocation.clearWatch(watchId);
+    // };
+    // }, []);
     
     const handleStart = async () => {
          
@@ -42,19 +99,7 @@ function Landing() {
           setErrorMsg('Permission to access location was denied');
           return;
         }
-        // Geolocation.getCurrentPosition(
-        //     position => {
-        //       console.log(position);
-        //       setMLat(position.coords.latitude);
-        //       setMLong(position.coords.longitude);
-        //     },
-        //     error => {
-        //       // See error code charts below.
-        //       console.log(error.code, error.message);
-        //     },
-        //     {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
-        //   );
-       
+    
         if(errorMsg)
             console.log("Error , ", errorMsg)
         navigation.navigate("Home",
@@ -69,33 +114,43 @@ function Landing() {
        
     }
 
-    // const [location, setLocation] = useState(null);
-
-    // useEffect(() => {
-    // const watchId = Geolocation.watchPosition(
-    //     (position) => {
-    //     setLocation(position.coords);
-    //     },
-    //     (error) => {
-    //     console.error(error);   
-
-    //     },
-    //     { enableHighAccuracy: true }
-       
-    // );
-
-    // return () => {
-    //     Geolocation.clearWatch(watchId);
-    // };
-    // }, []);
+ 
     // useEffect(() => {
     //     const requestLocationPermission = async () => {
     //       if (Platform.OS === 'android') {
     //         const granted = await Permissions.requestMultiple([Permissions.ANDROID.ACCESS_FINE_LOCATION, Permissions.ANDROID.ACCESS_COARSE_LOCATION]);
     //         if (granted['android.permission.ACCESS_FINE_LOCATION'] === 'granted') {
     //           // Location permission granted
+    //           const watchId = Geolocation.watchPosition(
+    //             (position) => {
+    //             setLocation(position.coords);
+    //             },
+    //             (error) => {
+    //                 switch (error.code) {
+    //                     case 1:
+    //                       console.log("Permission Denied:", error.message);
+    //                       break;
+    //                     case 2:
+    //                       console.log("Position Unavailable:", error.message);
+    //                       break;
+    //                     case 3:
+    //                       console.log("Timeout:", error.message);
+    //                       break;
+    //                     default:
+    //                       console.log("Unknown error:", error.message);
+    //                   }
+    //             },
+    //             {enableHighAccuracy: true, timeout: 55000, maximumAge: 10000},
+        
+               
+    //         );
+    //         console.log("Location", location)
+    //         return () => {
+    //             Geolocation.clearWatch(watchId);
+    //         };
     //         } else {
     //           // Location permission denied
+    //           const granted = await Permissions.requestMultiple([Permissions.ANDROID.ACCESS_FINE_LOCATION, Permissions.ANDROID.ACCESS_COARSE_LOCATION]);
     //         }
     //       }
     //     };

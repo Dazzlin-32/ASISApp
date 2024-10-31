@@ -10,9 +10,11 @@ import * as ImagePicker from 'expo-image-picker';
 import CameraCom from './CameraCom';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { database ,storage} from '../config/firebase';
-import { arrayUnion, collection, doc, onSnapshot,setDoc, updateDoc} from 'firebase/firestore';
+import { arrayUnion, doc, setDoc} from 'firebase/firestore';
 import { ImportantContext } from '../App';
 import Geolocation from '@react-native-community/geolocation';
+import { useTheme } from '../App';
+
 
 
 const GOOGLE_API_KEY = 'AIzaSyADC8vNOrfbGctE3a_xcwfHUBdjzg-_8vA'; 
@@ -22,30 +24,30 @@ function Test() {
   const [messages, setMessages] = useState([])
   const [newMessage, setNewMessage] = useState();
   const [submittedMessages, setSubmittedMessages] = useState([]);
-  const [location, setLocation] = useState(null);
+  const [location, setLocation] = useState({
+    latitude: '',
+    longitude: '',
+  });
   
-  const [mLat, setMLat] = useState(0); //latitude position
-  const [mLong, setMLong] = useState(0); //longitude position
-  const [loading, setLoading] = useState(null);
+  
+  //const [loading, setLoading] = useState(null);
   const scrollViewRef = useRef();//To Scroll to bottom
   const context = useContext(ImportantContext)
-  const [uploadLoading, setUploadLoading] = useState(false)
+  const { theme } = useTheme();
 
   //location update
-  const getGoogleLocation = async () => {
-    try {
+  const getGoogleLocation = () => {
+      console.log("get location")
       Geolocation.getCurrentPosition(
         position => {
-         
-          setLocation({
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
-          })
-          console.log("LAtitude",  position.coords.latitude, " Longitude",  position.coords.longitude)
-          console.log("Location: " ,location);
-          // setMLat(position.coords.latitude);
-          // setMLong(position.coords.longitude);
-          //console.log("Long: ". mLong, " Lat: ", mLat)
+          console.log(position.coords)
+          location.latitude =  position.coords.latitude
+          location.longitude = position.coords.latitude
+        // location['latitude']= position.coords.latitude
+        // location['longitude']= position.coords.longitude
+        //console.log("LAtitude",  position.coords.latitude, " Longitude",  position.coords.longitude)
+        console.log("Location: " ,location);
+          
         },
         error => {
           switch (error.code) {
@@ -62,40 +64,17 @@ function Test() {
               console.log("Unknown error:", error.message);
           }
         },
-        {enableHighAccuracy: true, timeout: 55000, maximumAge: 10000},
+        {enableHighAccuracy: true, timeout: 65000, maximumAge: 10000,  distanceFilter: 0},
       );
-      // const response = await axios.post(
-      //   `https://www.googleapis.com/geolocation/v1/geolocate?key=${GOOGLE_API_KEY}`
-      // );
-      // const { lat, lng } = response.data.location;
-      // setLocation({
-      //   latitude: lat,
-      //   longitude: lng,
-      //   latitudeDelta: 0.005,
-      //   longitudeDelta: 0.005,
-      // });
-      setLoading(false);
-      //console.log(location)
-    } catch (error) {
-      console.error('Error getting location:', error);
-      setLoading(false);
-    }
-    
- 
   };
   //every 5 min
   useEffect(() => {
     const intervalId = setInterval(async() => {
-      // Your function to execute every 5 minutes
-    //   let location = await Location.getCurrentPositionAsync({
-    //     accuracy: Location.Accuracy.BestForNavigation,
-    // });
-       getGoogleLocation()
-      console.log('This runs every 5 minutes', location);
-      // Call your function here
-    }, 1 * 10 * 1000); // 5 minutes in milliseconds
-    // Cleanup function to clear the interval when the component unmounts
+      getGoogleLocation()
+     // console.log("location")
+    }, 1* 30 * 1000); // 1 hour minutes in milliseconds
     return () => clearInterval(intervalId);
+    
   }, []); 
 
   //*********************Voice Recording and Sending*********************
@@ -375,7 +354,7 @@ function Test() {
         createdAt: new Date(),
         user : 'Anonymous',
         sent: "Sent",
-        location: [location?.longitude, location?.latitude]
+        location: [location.longitude, location.latitude]
         }
     setMessages((prevMsgs) => [...prevMsgs, newMessages])
     console.log(messages)
@@ -384,7 +363,11 @@ function Test() {
   }
 
   const handleSubmit = () => {
-    
+
+    if( location.latitude === "" || location.longitude === "")
+    {
+      getGoogleLocation()
+    }
     messages.map(
       (x)=> (
         x.image? 
@@ -399,6 +382,8 @@ function Test() {
     setMessages([])
     //set new chat Id
     setChatId(uuid.v4())
+
+    getGoogleLocation()
   }
 
  
@@ -746,7 +731,8 @@ function Test() {
            messages.length > 0 &&
            <Button  
            onPress={handleSubmit}
-           mode="contained" style={{backgroundColor:colors.primary, margin:5}} >
+           textColor='white'
+           mode="contained" style={{backgroundColor:colors.primary, margin:5,}} >
                 Submit Report
            </Button>
         }
@@ -771,21 +757,38 @@ function Test() {
                             }
         <View style={{flexDirection: 'row'}}>
 
-        <TextInput
-        style={{marginHorizontal:6, width:310, borderRadius: 5, borderRadius:30, borderWidth:0, borderColor:'transparet'}}
+        <View  style={{marginHorizontal:6, width:310, borderRadius: 5, borderRadius:15, borderWidth:1, borderColor:colors.primary,  flexDirection: 'row',  alignItems: 'center', backgroundColor:colors.white , paddingHorizontal:5}}>
+          <MaterialCommunityIcons name="camera-outline" size={24} color={colors.primary} onPress={openModal} />
+          <TextInput
+            placeholder="Type here"
+            multiline ={true}
+            style={{ flex: 1,paddingHorizontal: 10,backgroundColor:colors.white, color: colors.black}}
+            onChangeText={setNewMessage}
+            value={newMessage}
+            selectionColor={colors.grey}
+            cursorColor={colors.primary}
+          />
+
+
+          <MaterialCommunityIcons name="image-multiple-outline" size={24} color={theme.colors.primary} onPress={pickImage} />
+        </View>
+
+        {/* <TextInput
+        style={{marginHorizontal:6, width:310, borderRadius: 5, borderRadius:30, borderWidth:0, borderColor:colors.border}}
         value={newMessage}
         onChangeText={setNewMessage}
         mode='outlined'
-        outlineColor='transparent'
+        contentStyle={styles.input}
+        outlineColor= {colors.white}
         outlineStyle={{borderRadius: 20, borderColor:colors.primary}}
         left={<TextInput.Icon 
           onPress={openModal}
-          icon="camera-outline" color= {colors.primary}   />}
+          icon="camera-outline" color= {colors.primary} styles={{backgroundColor: colors.white}}  />}
         right= {
-                <TextInput.Icon icon="image-multiple-outline"  color={colors.primary}
+                <TextInput.Icon icon="image-multiple-outline"  color={theme.colors.primary}
                  onPress={()=>{pickImage()}} />
                  }
-        />
+        /> */}
         {
           newMessage?.length > 1 ?
           <Button 
@@ -812,8 +815,8 @@ function Test() {
               <CameraCom 
               style= {styles.cameraContainer}
               setModal = {setModal}
-              lat = {location.latitude}
-              lng = {location.longitude}
+              lat = {location?.latitude}
+              lng = {location?.longitude}
               length = {messages.length}
               setMessages={setMessages}
               messages={messages} />
@@ -922,4 +925,7 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
   },
+  input :{
+    backgroundColor: colors.white
+  }
 })

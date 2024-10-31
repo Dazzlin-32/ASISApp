@@ -9,6 +9,7 @@ import { collection, getDocs } from 'firebase/firestore';
 import { database } from '../config/firebase';
 import { ImportantContext} from '../App';
 
+
 const NewsList = ({ navigation }) => {
 
 
@@ -16,34 +17,72 @@ const NewsList = ({ navigation }) => {
     const [broadcasts, setBroadcasts] = useState([])
     const [oldBroadcastsLength, setOldBroadCastsLength] = useState()
     const [waiting, setWaiting] = useState(false)
+   
+    // useEffect(  ()=>{
 
-    useEffect(  ()=>{
-
-        setOldBroadCastsLength(broadcasts.length)
+    //     setOldBroadCastsLength(broadcasts.length)
         
-        const unsubscribe = async () => {
+    //     const unsubscribe = async () => {
 
-            const collectionRef = collection(database, 'broadcast')
-            const querySnapshot = await getDocs(collectionRef)
-            const documents = querySnapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data(),
-              }));
+    //         const collectionRef = collection(database, 'broadcast')
+    //         const querySnapshot = await getDocs(collectionRef)
+    //         const documents = querySnapshot.docs.map(doc => ({
+    //             id: doc.id,
+    //             ...doc.data(),
+    //           }));
 
-            // console.log(documents)
-            setBroadcasts(documents)
+    //         console.log(documents)
+    //         setBroadcasts(documents)
             
-            if(broadcasts.length > 0 ) setWaiting(true)
-            if(broadcasts.length > oldBroadcastsLength) {
-                context.setBadge(broadcasts.length - oldBroadcastsLength)
-            }
+    //         if(broadcasts.length > 0 ) setWaiting(true)
+    //         if(broadcasts.length > oldBroadcastsLength) {
+    //             context.setBadge(broadcasts.length - oldBroadcastsLength)
+    //         }
             
-        }
-        unsubscribe()
+    //     }
+    //     unsubscribe()
 
        
 
-    }, [broadcasts])
+    // }, [broadcasts])
+
+    useEffect(() => {
+        const fetchBroadcasts = async () => {
+          const collectionRef = collection(database, 'broadcast');
+          const querySnapshot = await getDocs(collectionRef);
+          const documents = querySnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data(),
+          }));
+          
+          console.log(documents);
+          setBroadcasts(documents)
+          
+          // Update broadcasts only if there's a difference in length
+          if (documents.length !== broadcasts.length) {
+            setOldBroadCastsLength(broadcasts.length); // Store previous length
+            setBroadcasts(documents); // Update broadcasts
+          }
+        };
+      
+        fetchBroadcasts();
+      
+        // Set badge and waiting status outside the async function to avoid re-rendering
+        if (broadcasts.length > oldBroadcastsLength) {
+          context.setBadge(broadcasts.length - oldBroadcastsLength);
+        }
+        if (broadcasts.length > 0) {
+          setWaiting(true);
+        }
+
+      
+
+        // Clean up to prevent memory leaks
+        return () => {
+          setWaiting(false);
+        };
+      }, []);
+      
     
 
 
@@ -75,8 +114,8 @@ const NewsList = ({ navigation }) => {
                         <Card style={styles.contactRow}>
                             <Card.Content>
                                 <Card.Cover source={broadcast.imageUrl}/>
-                                <Text variant="titleLarge">{broadcast.title}</Text>
-                                <Text variant="bodyMedium">{broadcast.description?.slice(0,125)}</Text>
+                                <Text style={{color: colors.black}} variant="titleLarge">{broadcast.title}</Text>
+                                <Text style={{color: colors.black}}variant="bodyMedium">{broadcast.description?.slice(0,125)}</Text>
                             </Card.Content>
                         </Card>
                     </TouchableOpacity>
@@ -106,8 +145,9 @@ const styles = StyleSheet.create({
     container: {
         paddingRi: 10,
     },
+
     contactRow: {
-        backgroundColor: 'white',
+        backgroundColor: colors.white,
         borderWidth: StyleSheet.hairlineWidth,
         borderColor: colors.primary,
         borderRadius: 10,
@@ -122,7 +162,7 @@ const styles = StyleSheet.create({
     },
     title: {
         fontSize: 10,
-        color: 'black', 
+        color: colors.black, 
         margin : 1,
         width: 250,
       },

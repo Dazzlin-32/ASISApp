@@ -10,16 +10,17 @@ import { Avatar, Button, Card, Text } from 'react-native-paper';
 // import * as ImagePicker from 'expo-image-picker';
 
 const News = ({ navigation, route }) => {
+  console.log(route.params)
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
 
-    <Card>
+    <Card style={{backgroundColor: colors.white}}>
       <Card.Content>
         <Card.Cover source={route.params.broadcast?.imageUrl} />
-        <Text variant="titleLarge">{route.params.broadcast?.title}</Text>
-        <Text variant="bodyMedium">{route.params.broadcast?.description}</Text>
-        <Text variant="labelSmall">{route.params.broadcast?.date ? route.params.broadcast?.date.toLocaleDateString : 'Date Unknown'}</Text>
+        <Text style={{color: colors.black}} variant="titleLarge">{route.params.broadcast?.title}</Text>
+        <Text style={{color: colors.black}} variant="bodyMedium">{route.params.broadcast?.description}</Text>
+        <Text style={{color: colors.black}} variant="labelSmall">{route.params.broadcast?.date ? route.params.broadcast?.date.toLocaleDateString : 'Date Unknown'}</Text>
       </Card.Content>
     </Card>
     {/* <Image
@@ -45,7 +46,7 @@ const News = ({ navigation, route }) => {
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    backgroundColor: "white",
+    backgroundColor: colors.white,
     flexDirection: 'column',
     paddingHorizontal: 20,
     paddingVertical: 10,

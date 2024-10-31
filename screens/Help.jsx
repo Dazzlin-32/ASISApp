@@ -1,6 +1,6 @@
 import React , {useState} from "react";
-import { Text, View, StyleSheet, Image } from "react-native";
-import { Avatar, Card, IconButton } from 'react-native-paper';
+import { View, StyleSheet, Image, TouchableOpacity } from "react-native";
+import { Avatar, Card, IconButton , Surface , Text} from 'react-native-paper';
 import { Button, Snackbar } from 'react-native-paper';
 import { colors } from '../config/constants';
 import Separator from "../components/Separator";
@@ -23,28 +23,22 @@ const Help = ({ navigation }) => {
     const onDismissSnackBarContact = () => setVisibleContact(false);
 
     return (
-        <View >
-            <Button  
-            style={styles.contactRow}
-            onPress={onToggleSnackBarAbout}>
-                <Card style={{backgroundColor: "white"}}>
+        <View style={{alignContent:"center", padding: 15}}>
+          <View style={{flexDirection:'row', }}>
 
-                <Card.Title  style={{backgroundColor: "white"}}
-                    title="About App"
-                    // left={(props) => <Avatar.Icon {...props} icon="folder" />}
-                    // right={(props) => <IconButton {...props} icon="dots-vertical" onPress={() => {}} />}
-                />
-                </Card>
-            </Button>
-            <Button  
-            style={styles.contactRow}
-            onPress={onToggleSnackBarContact}>
-                <Card style={{backgroundColor: "white"}}>
-                <Card.Title style={{backgroundColor: "white"}}
-                    title="Contact Info"
-                />
-                </Card>
-            </Button>
+            <Surface style={styles.surface} elevation={2}>
+                          <TouchableOpacity style={{width: 150, height: 100, padding:10, alignContent:'center', justifyContent:"center"}}
+                                  onPress={onToggleSnackBarAbout}>
+                              <Text style={{color:'white'}} variant="headlineSmall"> ABOUT APP </Text>
+                          </TouchableOpacity>
+                  </Surface>
+              <Surface style={styles.surface} elevation={2}>
+                      <TouchableOpacity style={{width: 150, height: 100, padding:10, alignContent:'center', justifyContent:"center"}}
+                              onPress={onToggleSnackBarContact}>
+                          <Text style={{color:'white'}} variant="headlineSmall">Contact Info </Text>
+                      </TouchableOpacity>
+              </Surface>
+          </View>
             <Image 
             style={styles.logotwo}
             source={require('../assets/images/dagu.png')}/>
@@ -90,6 +84,14 @@ const styles = StyleSheet.create({
         height:150,
         margin:120
       },
+    surface : {
+      height: 100,
+      width: 150,
+      backgroundColor: colors.primary,
+      borderRadius: 15,
+      margin:10
+
+    }
   
 })
 

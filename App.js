@@ -14,22 +14,43 @@ import { ChatHeader } from './components/ChatHeader';
 import Landing from './screens/Landing';
 import CameraCom from './screens/CameraCom';
 import uuid from 'react-native-uuid';
-import BadgeIcon from './components/BadgeIcon';
+import {BadgeIcon} from './components/BadgeIcon';
 import Test from './screens/Test';
 import NewsList from './screens/NewsList';
 import { PaperProvider } from 'react-native-paper';
+import { Appearance } from 'react-native';
+import { lightTheme, darkTheme } from './config/constants';
 
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 export const ImportantContext = createContext({});
+export const ThemeContext = createContext();
 
 
 
 
+//Theme Context
+const ThemeProvider = ({ children }) => {
+  const colorScheme = Appearance.getColorScheme(); // Get initial OS color scheme
+  const [theme, setTheme] = useState(colorScheme === 'dark' ? darkTheme : lightTheme);
 
+  useEffect(() => {
+    const subscription = Appearance.addChangeListener(({ colorScheme }) => {
+      setTheme(colorScheme === 'dark' ? darkTheme : lightTheme);
+    });
+    return () => subscription.remove();
+  }, []);
 
- const ImportantContextProvider = ({children}) =>{
+  return (
+    <ThemeContext.Provider value={{ theme }}>
+      {children}
+    </ThemeContext.Provider>
+  );
+};
+export const useTheme = () => useContext(ThemeContext);
+
+const ImportantContextProvider = ({children}) =>{
   const [badge, setBadge] = useState()
   const [chatID, setChatId] = useState(null)
 
@@ -53,24 +74,24 @@ const TabNavigation = () => (
 
   <Tab.Navigator
   screenOptions={({ route }) => ({
-    // tabBarIcon: ({ focused, color, size }) => {
-    //   let iconName;
-    //   let badgeCount = 0; // Default badge count
+    tabBarIcon: ({ focused, color, size }) => {
+      let iconName;
+      let badgeCount = 0; // Default badge count
 
-    //   if (route.name === 'Main') {
-    //     iconName = focused ? 'chatbubbles' : 'chatbubbles-outline';
-    //     badgeCount = 0; // no badge count for Main
-    //   } else if (route.name === 'News') {
-    //     iconName = focused ? 'newspaper' : 'newspaper-outline';
-    //     badgeCount = 5; // badge for General
-    //   }
-    //   else if (route.name === 'Information') {
-    //     iconName = focused ? 'information-circle' : 'information-circle-outline';
-    //     badgeCount = 0; // badge for General
-    //   }
+      if (route.name === 'Main') {
+        iconName = focused ? 'chatbubbles' : 'chatbubbles-outline';
+        badgeCount = 0; // no badge count for Main
+      } else if (route.name === 'News') {
+        iconName = focused ? 'newspaper' : 'newspaper-outline';
+        badgeCount = 5; // badge for General
+      }
+      else if (route.name === 'Information') {
+        iconName = focused ? 'information-circle' : 'information-circle-outline';
+        badgeCount = 0; // badge for General
+      }
 
-    //   return <BadgeIcon iconName={iconName} badgeCount={badgeCount} size={size} color={color} />;
-    // },
+      return <Ionicons name={iconName} size={size}  color={color}  />;
+    },
   })}
   > 
    
@@ -116,13 +137,20 @@ const MainStack = () => (
     }}
     component={News} />
     <Stack.Screen name="About" component={About} 
+
      options={ { 
-      header: (props) => <ChatHeader 
+      header: () => <ChatHeader 
       titleOne='AFAR PEACE AND SECURITY'
       subtitle='About Us' />
                }}
      />
-    <Stack.Screen name="Help" component={Help} />
+    <Stack.Screen 
+     options={ { 
+      header: () => <ChatHeader 
+      titleOne='AFAR PEACE AND SECURITY'
+      subtitle='About Us' />
+               }}
+    name="Help" component={Help} />
   </Stack.Navigator>
 
 )
@@ -132,12 +160,14 @@ export default function App() {
   
   return (
     <PaperProvider >
-    <ImportantContextProvider>
-      <NavigationContainer>
-        <MainStack />
-  
-      </NavigationContainer>
-    </ImportantContextProvider>
+    <ThemeProvider>
+      <ImportantContextProvider>
+        <NavigationContainer>
+          <MainStack />
+    
+        </NavigationContainer>
+      </ImportantContextProvider>
+    </ThemeProvider>
   </PaperProvider>
    
   );

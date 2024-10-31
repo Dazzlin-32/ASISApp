@@ -1,8 +1,6 @@
 
 import { Image, View, Text, StyleSheet } from 'react-native';
 import { colors } from '../config/constants';
-import { TouchableOpacity } from 'react-native';
-import { Ionicons} from '@expo/vector-icons';
 import { SafeAreaView , useSafeAreaInsets} from 'react-native-safe-area-context';
 import { StatusBar, Platform } from 'react-native';
 import { Appbar } from 'react-native-paper';
@@ -10,24 +8,23 @@ import { Appbar } from 'react-native-paper';
 
 export function ChatHeader({navigation, titleOne, subtitle, }) {
   const insets = useSafeAreaInsets(); 
- 
   return (
     
-    // <SafeAreaView  style={styles.header}>
-    //       <Image
-    //         source={require('../assets/images/icon.png')}
-    //         style={styles.logo}
-    //       />
-    //       <View  >
-    //         <Text style={styles.title}>{titleOne}</Text>
-    //         <Text style={styles.online}>{subtitle}</Text>
-    //       </View>
-    // </SafeAreaView>
-    <Appbar.Header>
-    <Appbar.Content title="Title" />
-     <Appbar.Action icon="magnify" onPress={() => {}} />
+    <View style={[styles.header, { paddingTop: insets.top }]}>
+          <Image
+            source={require('../assets/images/icon.png')}
+            style={styles.logo}
+          />
+          <View  >
+            <Text style={styles.title}>{titleOne}</Text>
+            <Text style={styles.online}>{subtitle}</Text>
+          </View>
+    </View>
+//     <Appbar.Header>
+//     <Appbar.Content title="Title" />
+//      <Appbar.Action icon="magnify" onPress={() => {}} />
     
- </Appbar.Header>
+//  </Appbar.Header>
     
   );
 }
@@ -43,32 +40,36 @@ const styles = StyleSheet.create({
     borderBottomEndRadius:30,
     borderColor: "black",
     borderWidth: 1,
-    // marginTop: 0,
+    marginTop: 0,
+    
     // paddingTop: 20,
-    paddingLeft: 10,
-    paddingRight:10,
+    // paddingLeft: 10,
+    // paddingRight:10,
   },
   logo: {
     width: 50,
     height: 50,
     marginRight: 10,
+ 
   },
   titleBox : {
     flexDirection: 'column',
     justifyContent: 'center',
-    alignItemsl: 'center'
+    alignItemsl: 'center',
   },
   title: {
     fontSize: 20,
     fontWeight: 'bold',
     color: 'white',
     flexDirection: 'column',
+   
     
   },
   online: {
     fontSize: 12,
     fontWeight: 'bold',
     color: 'white',
+  
     
   },
 
