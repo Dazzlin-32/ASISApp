@@ -1,6 +1,6 @@
 import { useState, useRef , useEffect, useContext} from 'react';
-import { ScrollView, StyleSheet,  Animated, Easing, View, TouchableOpacity, Modal, Image, Alert} from 'react-native';
-import { Surface, Text ,Icon,  Button, TextInput} from 'react-native-paper';
+import { ScrollView, StyleSheet,  Animated, Easing, View, TouchableOpacity, Modal, Image, Alert,Linking, ImageBackground} from 'react-native';
+import { Surface, Text ,Icon,  Button, TextInput,  ActivityIndicator} from 'react-native-paper';
 import uuid from 'react-native-uuid';
 import { colors } from '../config/constants';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons'
@@ -13,7 +13,8 @@ import { database ,storage} from '../config/firebase';
 import { arrayUnion, doc, setDoc} from 'firebase/firestore';
 import { ImportantContext } from '../App';
 import Geolocation from '@react-native-community/geolocation';
-import { useTheme } from '../App';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 
 
 
@@ -28,12 +29,13 @@ function Test() {
     latitude: '',
     longitude: '',
   });
+  const [locationLoad, setLocationLoad] = useState(true)
+  const { t, i18n } = useTranslation(); //For translation
   
   
   //const [loading, setLoading] = useState(null);
   const scrollViewRef = useRef();//To Scroll to bottom
   const context = useContext(ImportantContext)
-  const { theme } = useTheme();
 
   //location update
   const getGoogleLocation = () => {
@@ -47,6 +49,7 @@ function Test() {
         // location['longitude']= position.coords.longitude
         //console.log("LAtitude",  position.coords.latitude, " Longitude",  position.coords.longitude)
         console.log("Location: " ,location);
+        setLocationLoad(false)
           
         },
         error => {
@@ -55,7 +58,19 @@ function Test() {
               console.log("Permission Denied:", error.message);
               break;
             case 2:
-              console.log("Position Unavailable:", error.message);
+              {
+                Alert.alert("Location Access Denied",
+                  'Location services are disabled. Please enable them to continue.',
+                  [
+                    {
+                      text: 'Open Settings',
+                      onPress: () => Linking.openSettings(),
+                    },
+                    { text: 'Cancel' },
+                  ]
+                );
+              
+              }
               break;
             case 3:
               console.log("Timeout:", error.message);
@@ -67,14 +82,13 @@ function Test() {
         {enableHighAccuracy: true, timeout: 65000, maximumAge: 10000,  distanceFilter: 0},
       );
   };
-  //every 5 min
+  //Get location if location is not set properly
   useEffect(() => {
     const intervalId = setInterval(async() => {
-      getGoogleLocation()
-     // console.log("location")
+      if( location.latitude === "" || location.longitude === "")
+        getGoogleLocation()
     }, 1* 30 * 1000); // 1 hour minutes in milliseconds
     return () => clearInterval(intervalId);
-    
   }, []); 
 
   //*********************Voice Recording and Sending*********************
@@ -154,7 +168,7 @@ function Test() {
   return seconds < 10 ? `${Math.floor(minutes)}:0${seconds}` : `${Math.floor(minutes)}:${seconds}`
 }
   setAudio(recording)
-  console.log("Audio", audio)
+  // console.log("Audio", audio)
   setRecordings(allRecordings);
     }
 
@@ -172,7 +186,8 @@ function Test() {
                 onPress={()=>{
                   handlePlay(recordingLine)
                 }}
-              >
+                >
+                
                 {
                   isPlaying ? <Ionicons
                   name="pause-outline"
@@ -207,8 +222,8 @@ function Test() {
           <MaterialCommunityIcons name="waveform" size={24} color={colors.primary} />
          
 
-          <Button styles= {styles.buton} mode="contained" style={{backgroundColor:colors.primary, padding:0,margin:0}} labelStyle={{fontSize:10}} onPress={()=> {handleSendAudio(recordingLine)}} > {recordings.length > 0 ? 'Send' : ''}</Button>
-          <Button styles= {styles.buton} mode="contained" style={{backgroundColor:colors.primary, padding:0,margin:0}} labelStyle={{fontSize:10}}  onPress={handleCancelAudio} > {recordings.length > 0 ? 'Cancel' : ''}</Button>
+          <Button styles= {styles.buton} mode="contained" style={{backgroundColor:colors.primary, padding:0,margin:0}} labelStyle={{fontSize:10}} onPress={()=> {handleSendAudio(recordingLine)}} > {recordings.length > 0 ? t('Send') : ''}</Button>
+          <Button styles= {styles.buton} mode="contained" style={{backgroundColor:colors.primary, padding:0,margin:0}} labelStyle={{fontSize:10}}  onPress={handleCancelAudio} > {recordings.length > 0 ? t('Cancel') : ''}</Button>
  
         </View>
       );
@@ -260,7 +275,7 @@ function Test() {
       }
       
     setMessages((prevMsgs) => [...prevMsgs, newMessages])
-    console.log(messages)
+    //console.log(messages)
     // Clear the input field
     clearRecordings()
         
@@ -281,7 +296,7 @@ function Test() {
       setSound(sound);
       setIsPlaying(true);
       //const duration = getDurationFormatted(status?.durationMillis)
-      console.log("Status", duration)
+      // console.log("Status", duration)
       await sound.playAsync();
       console.log('Playing audio');
     }
@@ -313,6 +328,7 @@ function Test() {
           sent: "Sent",
           image:result.assets[0].uri,
           }
+          console.log(result.assets[0].uri)
           
         setMessages((prevMsgs) => [...prevMsgs, newMessages])
         console.log(messages)
@@ -339,6 +355,7 @@ function Test() {
 
   const handleImagePress = () => {
     setVisible(true); // Show modal when image is pressed
+  
   };
 
   const closeModal = () => {
@@ -357,10 +374,12 @@ function Test() {
         location: [location.longitude, location.latitude]
         }
     setMessages((prevMsgs) => [...prevMsgs, newMessages])
-    console.log(messages)
+    //console.log(messages)
       // Clear the input field
       setNewMessage('');
   }
+
+  
 
   const handleSubmit = () => {
 
@@ -368,6 +387,7 @@ function Test() {
     {
       getGoogleLocation()
     }
+
     messages.map(
       (x)=> (
         x.image? 
@@ -393,10 +413,10 @@ function Test() {
 
     const response = await fetch(uri)
     const blob = await response.blob(); // Convert response to Blob
-    console.log("Blob file of image: ", blob)
+    //console.log("Blob file of image: ", blob)
 
     try {
-      console.log("Blob", blob.data.name)
+      // console.log("Blob", blob.data.name)
       const fileRef = ref(storage, `newreports/${blob.data.name}`);
       const uploadTask = uploadBytesResumable(fileRef, blob);
       let downloadURL
@@ -447,7 +467,7 @@ function Test() {
    
     const response = await fetch(uri);
     const blob = await response.blob(); // Convert response to Blob
-    console.log("Blob of Audio")
+
 
     try {
       //const fileRef = ref(storage, `chats/${file.name}`);
@@ -513,149 +533,61 @@ function Test() {
   }
 
   return (  
-    <>
+    <View  style={{flex:1, justifyContent:"center",}}>
      {/* Scroll View to show messages */}
-      <ScrollView 
-      contentContainerStyle={styles.scroll}
-      ref={scrollViewRef}
-      onContentSizeChange={() => scrollViewRef.current.scrollToEnd({ animated: true })} >
-        {/* Loop through messages and show as a surface */}
-        {
-          submittedMessages.length > 0 &&
-          submittedMessages.map (
-            (y)=> (
-              y.map(
-                (x) => (
-                  <View style={styles.bubble} key={x.index}>
-                  {/* Text Message Rendering */}
-                  {
-                   
-                    x.audio ?
-                    <Surface style={styles.surface} elevation={2}>
-                        <View  style={{flexDirection:"row", width:150}}>
-                          <TouchableOpacity style= {{zIndex:3,}}
-                                  onPress={()=>{
-                                    handlefirebaseAudioPlay(x.audioUrl)
-                                  }}
-                                >
-                                  {
-                                    isPlaying ? <Ionicons
-                                    name="pause-outline"
-                                    size={25}
-                                    color={colors.grey} />: 
-                                    <Ionicons
-                                    name="play-outline"
-                                    size={25}
-                                    color={colors.grey} />
-                          }
-                          </TouchableOpacity>
-                            <MaterialCommunityIcons name="waveform" size={24} color= {colors.grey} />
-                            <MaterialCommunityIcons name="waveform" size={24} color= {colors.grey} />
-                            <MaterialCommunityIcons name="waveform" size={24} color= {colors.grey} />
-                            <MaterialCommunityIcons name="waveform" size={24} color= {colors.grey} />
-                            <MaterialCommunityIcons name="waveform" size={24} color= {colors.grey} />
-                      </View>
-                  </Surface>
-                  :
-                  x.image?
-                  <View>
-                      <TouchableOpacity 
-                      onPress={handleImagePress}>
-                        <Surface style={styles.surfaceImage} elevation={2}>
-                                  <Image
-                                source={{uri: x.fileUrl}} // Example image
-                                style={styles.image}
-                                resizeMode="cover" // Adjust how the image fits
-                              />
-                          <Text style={{color:'white', fontSize:10,}}>{x.createdAt.toLocaleTimeString([], {
-                              hour: '2-digit',
-                              minute: '2-digit',
-                            })}</Text>
-                                            {/* {console.log(x.createdAt.toLocaleTimeString([], {
-                              hour: '2-digit',
-                              minute: '2-digit',
-                            }))} */}
-                        </Surface>
-                      </TouchableOpacity>
-                      {/* Full-screen modal */}
-                      <Modal
-                        visible={visible}
-                        transparent={true}
-                        animationType="fade"
-                        onRequestClose={closeModal} // Close modal on back button press (Android)
-                      >
-                        <View style={styles.modalContainer}>
-                          <TouchableOpacity style={styles.modalBackground} onPress={closeModal}>
-                            <Image
-                              source={x.image} // Full-size image
-                              style={styles.fullImage}
-                              resizeMode="contain"
-                            />
-                            <Text style={styles.closeText}>Tap anywhere to close</Text>
-                          </TouchableOpacity>
-                        </View>
-                      </Modal>
-                  </View>
-
-                 
-                  :
-                  <Surface style={styles.surface} elevation={4}>
-                    <Text style={{color:'white', fontSize:16,}}>{x.text}</Text>
-                    <Text style={{color:'white', fontSize:10,}}>{x.createdAt.toLocaleTimeString([], {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}</Text>
-                                       {/* {console.log(x.createdAt.toLocaleTimeString([], {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      }))} */}
-                  </Surface>
-                  }
-                  
-                    
-                  <Surface style={styles.avatar} elevation={4}>
-                    <Text style={{color:'white', fontSize:10,}}>YOU</Text>
-                    
-                  </Surface>
-
-                  {/* Audio Message Rendering */}
-                 
-              </View>
-                )
-                  
-                
-              )
-              
-              
-          )
-          )}
+     <ImageBackground 
+            imageStyle={{opacity: 0.5, height: "100%", width: "100%" }}
+            style= {{flex:1, justifyContent:"center", alignContent: 'center',  height: "100%",   zIndex: -1}}
+            source={require('../assets/images/wallpaper4.png')}>
+        <ScrollView 
+        contentContainerStyle={styles.scroll}
+        ref={scrollViewRef}
+        onContentSizeChange={() => scrollViewRef.current.scrollToEnd({ animated: true })} >
+          {/* Loop through messages and show as a surface */}
           {
-            messages.length > 0 ?
-            messages.map(
-            (x)=> (
-                <View style={styles.bubble} key={x.id}>
+            submittedMessages.length > 0 &&
+            submittedMessages.map (
+              (y)=> (
+                y.map(
+                  (x) => (
+                    <View style={styles.bubble} key={x.index}>
                     {/* Text Message Rendering */}
                     {
+                    
                       x.audio ?
-                      <Surface style={styles.surface} elevation={4}>
-                      <Text style={{color:'white', fontSize:16,}}>Audio</Text>
-                      <Text style={{color:'white', fontSize:10,}}>{x.createdAt.toLocaleTimeString([], {
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })}</Text>
-                                        {/* {console.log(x.createdAt.toLocaleTimeString([], {
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        }))} */}
+                      <Surface style={styles.surface} elevation={2}>
+                          <View  style={{flexDirection:"row", width:150}}>
+                            <TouchableOpacity style= {{zIndex:3,}}
+                                    onPress={()=>{
+                                      handlefirebaseAudioPlay(x.audioUrl)
+                                    }}
+                                  >
+                                    {
+                                      isPlaying ? <Ionicons
+                                      name="pause-outline"
+                                      size={25}
+                                      color={colors.grey} />: 
+                                      <Ionicons
+                                      name="play-outline"
+                                      size={25}
+                                      color={colors.grey} />
+                            }
+                            </TouchableOpacity>
+                              <MaterialCommunityIcons name="waveform" size={24} color= {colors.grey} />
+                              <MaterialCommunityIcons name="waveform" size={24} color= {colors.grey} />
+                              <MaterialCommunityIcons name="waveform" size={24} color= {colors.grey} />
+                              <MaterialCommunityIcons name="waveform" size={24} color= {colors.grey} />
+                              <MaterialCommunityIcons name="waveform" size={24} color= {colors.grey} />
+                        </View>
                     </Surface>
                     :
                     x.image?
                     <View>
                         <TouchableOpacity 
                         onPress={handleImagePress}>
-                          <Surface style={styles.surface} elevation={4}>
+                          <Surface style={styles.surfaceImage} elevation={2}>
                                     <Image
-                                  source={x.image} // Example image
+                                  source={{uri: x.fileUrl}} // Example image
                                   style={styles.image}
                                   resizeMode="cover" // Adjust how the image fits
                                 />
@@ -679,7 +611,7 @@ function Test() {
                           <View style={styles.modalContainer}>
                             <TouchableOpacity style={styles.modalBackground} onPress={closeModal}>
                               <Image
-                                source={x.image} // Full-size image
+                                source={{uri:  x.image}} // Full-size image
                                 style={styles.fullImage}
                                 resizeMode="contain"
                               />
@@ -689,7 +621,7 @@ function Test() {
                         </Modal>
                     </View>
 
-                   
+                  
                     :
                     <Surface style={styles.surface} elevation={4}>
                       <Text style={{color:'white', fontSize:16,}}>{x.text}</Text>
@@ -706,34 +638,164 @@ function Test() {
                     
                       
                     <Surface style={styles.avatar} elevation={4}>
-                      <Text style={{color:'white', fontSize:10,}}>YOU</Text>
+                      <Text style={{color:'white', fontSize:10,}}>{t("You")}</Text>
                       
                     </Surface>
 
                     {/* Audio Message Rendering */}
-                   
+                  
                 </View>
+                  )
+                    
+                  
+                )
+                
                 
             )
-          )
-          :
-          <><Text style={{margin:10}}></Text></>
+            )}
+            {
+              messages.length > 0 ?
+              messages.map(
+              (x)=> (
+                  <View style={styles.bubble} key={x.id}>
+                      {/* Text Message Rendering */}
+                      {
+                        x.audio ?
+                        
+                        <View>
+                         
+                         
+                          <View  style={{width: 300, flexDirection: 'row', marginVertical: 5,
+                            marginHorizontal: 10,
+                            padding: 18,
+                            maxWidth: 250,
+                            alignItems: 'flex-start',
+                            justifyContent: 'space-around',
+                            backgroundColor: colors.secondary,
+                            borderRadius: 20, }}>
+                            <TouchableOpacity style= {styles.button2}
+                              onPress={()=>{
+                                () => playAudioFromFirestore(currentMessage.audioUrl)
+                              }}
+                            >
+                              {
+                                isPlaying ? <Ionicons
+                                name="pause-outline"
+                                size={25}
+                                color={colors.white} />: 
+                                <Ionicons
+                                name="play-outline"
+                                size={25}
+                                color={colors.white} />
+                              }
+                              
+                            </TouchableOpacity>
+                            <MaterialCommunityIcons name="waveform" size={24} color= {colors.white} />
+                            <MaterialCommunityIcons name="waveform" size={24} color={colors.white} />
+                            <MaterialCommunityIcons name="waveform" size={24} color={colors.white} />
+                            <MaterialCommunityIcons name="waveform" size={24} color={colors.white} />
+                            <MaterialCommunityIcons name="waveform" size={24} color={colors.white} />
+                            <MaterialCommunityIcons name="waveform" size={24} color={colors.white} />
+                            <MaterialCommunityIcons name="waveform" size={24} color={colors.white} />
+                            <MaterialCommunityIcons name="waveform" size={24} color={colors.white} />  
+                          </View>
+                         
+                          <Text style={{color:'white', fontSize:10,}}>{x.createdAt.toLocaleTimeString([], {
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })}</Text>
+                        </View>
+                        
+                      :
+                      x.image?
+                      <View>
+                          <TouchableOpacity 
+                          
+                          onPress={handleImagePress}>
+                           
+                            <Surface style={styles.surfaceImage} elevation={4}>
+                                      <Image
+                                    source={{uri:x.image}} // Example image
+                                    style={styles.image}
+                                    resizeMode="cover" // Adjust how the image fits
+                                  />
+                              <Text style={{color:'white', fontSize:10,}}>{x.createdAt.toLocaleTimeString([], {
+                                  hour: '2-digit',
+                                  minute: '2-digit',
+                                })}</Text>
+                                                {/* {console.log(x.createdAt.toLocaleTimeString([], {
+                                  hour: '2-digit',
+                                  minute: '2-digit',
+                                }))} */}
+                            </Surface>
+                          </TouchableOpacity>
+                          {/* Full-screen modal */}
+                          <Modal
+                            visible={visible}
+                            transparent={true}
+                            animationType="fade"
+                            onRequestClose={closeModal} // Close modal on back button press (Android)
+                          >
+                            <View style={styles.modalContainer}>
+                              <TouchableOpacity style={styles.modalBackground} onPress={closeModal}>
+                                
+                                <Image
+                                  source={{uri: x.image}} // Full-size image
+                                  style={styles.fullImage}
+                                  resizeMode="contain"
+                                />
+                                <Text style={styles.closeText}>Tap anywhere to close</Text>
+                              </TouchableOpacity>
+                            </View>
+                          </Modal>
+                      </View>
 
-        }
-      </ScrollView>
+                    
+                      :
+                      <Surface style={[styles.surface, {backgroundColor : colors.secondary}]} elevation={4}>
+                        <Text style={{color:'white', fontSize:16,}}>{x.text}</Text>
+                        <Text style={{color:'white', fontSize:10,}}>{x.createdAt.toLocaleTimeString([], {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}</Text>
+                                          {/* {console.log(x.createdAt.toLocaleTimeString([], {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          }))} */}
+                      </Surface>
+                      }
+                      
+                        
+                      <Surface style={styles.avatar} elevation={4}>
+                        <Text style={{color:'white', fontSize:10,}}>YOU</Text>
+                        
+                      </Surface>
 
+                      {/* Audio Message Rendering */}
+                    
+                  </View>
+                  
+              )
+            )
+            :
+            <><Text style={{margin:10}}></Text></>
+
+          }
+        </ScrollView>
+              
       {/* Message Input , Submit Button Camera Multimedia and Video  */}
 
       <View style={{flexDirection: 'column'}}>
 
         {/* show submit after message is written or voice or pic or video */}
         {
-           messages.length > 0 &&
-           <Button  
-           onPress={handleSubmit}
+            messages.length > 0 && locationLoad ?
+          <ActivityIndicator animating={true} color={colors.primary} />:    //If location is still loading     
+          messages.length > 0 && <Button  
+           onPress={ () => handleSubmit()}
            textColor='white'
            mode="contained" style={{backgroundColor:colors.primary, margin:5,}} >
-                Submit Report
+               { t("Submit")}
            </Button>
         }
 
@@ -760,7 +822,7 @@ function Test() {
         <View  style={{marginHorizontal:6, width:310, borderRadius: 5, borderRadius:15, borderWidth:1, borderColor:colors.primary,  flexDirection: 'row',  alignItems: 'center', backgroundColor:colors.white , paddingHorizontal:5}}>
           <MaterialCommunityIcons name="camera-outline" size={24} color={colors.primary} onPress={openModal} />
           <TextInput
-            placeholder="Type here"
+            placeholder={t("Type Here")}
             multiline ={true}
             style={{ flex: 1,paddingHorizontal: 10,backgroundColor:colors.white, color: colors.black}}
             onChangeText={setNewMessage}
@@ -770,7 +832,7 @@ function Test() {
           />
 
 
-          <MaterialCommunityIcons name="image-multiple-outline" size={24} color={theme.colors.primary} onPress={pickImage} />
+          <MaterialCommunityIcons name="image-multiple-outline" size={24} color={colors.primary} onPress={pickImage} />
         </View>
 
         {/* <TextInput
@@ -785,7 +847,7 @@ function Test() {
           onPress={openModal}
           icon="camera-outline" color= {colors.primary} styles={{backgroundColor: colors.white}}  />}
         right= {
-                <TextInput.Icon icon="image-multiple-outline"  color={theme.colors.primary}
+                <TextInput.Icon icon="image-multiple-outline"  color={colors.primary}
                  onPress={()=>{pickImage()}} />
                  }
         /> */}
@@ -825,7 +887,8 @@ function Test() {
 
       
       </View>
-    </>
+       </ImageBackground>
+    </View>
   );
 }
 
@@ -833,8 +896,9 @@ export default Test;
 
 const styles = StyleSheet.create({ 
   scroll: {
+    // height: 500,
     flexDirection: 'column',
-   alignItems: 'flex-end'
+   alignItems: 'flex-end',
   },
   bubble: {
     flexDirection: "row",
@@ -853,12 +917,12 @@ const styles = StyleSheet.create({
     marginVertical: 5,
     marginHorizontal: 10,
     padding: 18,
-    // height: 80,
-    // width: 250,
+    maxWidth: 300,
     alignItems: 'flex-start',
     justifyContent: 'space-around',
     backgroundColor: colors.primary,
-    borderRadius: 20
+    borderRadius: 20,
+    zIndex: 2,
   },
   
 

@@ -20,6 +20,8 @@ import NewsList from './screens/NewsList';
 import { PaperProvider } from 'react-native-paper';
 import { Appearance } from 'react-native';
 import { lightTheme, darkTheme } from './config/constants';
+import i18n from './config/i18n'; //Importing translation files here DONOT Comment out or delete
+import { useTranslation } from 'react-i18next';
 
 
 const Tab = createBottomTabNavigator();
@@ -27,27 +29,6 @@ const Stack = createNativeStackNavigator();
 export const ImportantContext = createContext({});
 export const ThemeContext = createContext();
 
-
-
-
-//Theme Context
-const ThemeProvider = ({ children }) => {
-  const colorScheme = Appearance.getColorScheme(); // Get initial OS color scheme
-  const [theme, setTheme] = useState(colorScheme === 'dark' ? darkTheme : lightTheme);
-
-  useEffect(() => {
-    const subscription = Appearance.addChangeListener(({ colorScheme }) => {
-      setTheme(colorScheme === 'dark' ? darkTheme : lightTheme);
-    });
-    return () => subscription.remove();
-  }, []);
-
-  return (
-    <ThemeContext.Provider value={{ theme }}>
-      {children}
-    </ThemeContext.Provider>
-  );
-};
 export const useTheme = () => useContext(ThemeContext);
 
 const ImportantContextProvider = ({children}) =>{
@@ -101,7 +82,8 @@ const TabNavigation = () => (
       header: (props) => <ChatHeader 
       titleOne='AFAR PEACE AND SECURITY'
       subtitle='News' />
-               }}/>
+               }}
+               />
      <Tab.Screen 
      name="Main" component={Test} 
      options={ { 
@@ -128,13 +110,15 @@ const MainStack = () => (
     <Stack.Screen name='Home' component={TabNavigation}   options={{ headerShown: false }} />
     <Stack.Screen name='Camera' component={CameraCom}  options={ {headerShown: false}}/>
     <Stack.Screen name="News Detail" 
-     options={ {
-      headerStyle: {
-        backgroundColor: colors.primary,
-      },
-      headerTintColor: '#fff',
+    //  options={ {
+    //   headerStyle: {
+    //     backgroundColor: colors.primary,
+    //   },
+    //   headerTintColor: '#fff',
       
-    }}
+    // }}
+    
+    options={ {headerShown: false}}
     component={News} />
     <Stack.Screen name="About" component={About} 
 
@@ -160,14 +144,11 @@ export default function App() {
   
   return (
     <PaperProvider >
-    <ThemeProvider>
-      <ImportantContextProvider>
-        <NavigationContainer>
-          <MainStack />
-    
+        <ImportantContextProvider>
+          <NavigationContainer>
+            <MainStack />
         </NavigationContainer>
       </ImportantContextProvider>
-    </ThemeProvider>
   </PaperProvider>
    
   );

@@ -4,31 +4,44 @@ import Cell from "../components/Cell";
 import { auth } from '../config/firebase';
 import { BlurView } from 'expo-blur';
 import React, { useState, useEffect } from 'react';
-import { Platform, Text, View, StyleSheet, Image } from 'react-native';
+import { useTranslation } from 'react-i18next';
+import { Platform, Text, View, StyleSheet, Image,  ImageBackground } from 'react-native';
+import { Surface } from 'react-native-paper';
 
 
 
 const About = ({ navigation }) => {
 
- 
+  
+  const { t, i18n } = useTranslation();
+  //i18n.changeLanguage("am");
     return (
         <View style={styles.container}>
-           <BlurView intensity={10} style={styles.blurContainer}>
+           <BlurView intensity={10}>
+           <ImageBackground 
+            imageStyle={{opacity: 0.6,}}
+            style= {{flex:1, justifyContent:"center", alignItems: 'center', resizeMode: 'contain',  zIndex: -1, 
+                }}
+            source={require('../assets/images/wallpaper1.jpg')}>
+            <Surface style={styles.blurContainer}>
+              <Image 
+                style={styles.logo}
+                source={require('../assets/images/symbol.png')}/>
+              
+                <Text style={styles.title}>{t('AFAR PEACE AND SECURITY')}</Text>
+              <Text style={styles.paragraph}>
+                {
+                  t('AboutDetail')
+                }
+            
+            </Text>
+
             <Image 
-            style={styles.logo}
-            source={require('../assets/images/symbol.png')}/>
-          
-            <Text style={styles.title}>AFAR PEACE AND SECURITY</Text>
-          <Text style={styles.paragraph}>
-          We are a dedicated ministry committed to promoting peace, security, 
-          and stability in our communities. Through proactive initiatives,
-           collaboration, and strategic interventions, we strive to foster
-            harmonious relationships and safeguard the well-being of individuals 
-            and societies. Our mission is to create a safer world for present and future generations.
-         </Text>
-         <Image 
-            style={styles.logotwo}
-            source={require('../assets/images/dagu.png')}/>
+                style={styles.logotwo}
+                source={require('../assets/images/dagu.png')}/>
+            </Surface>
+
+            </ImageBackground>
            </BlurView>
       </View>
   
@@ -40,40 +53,48 @@ const styles = StyleSheet.create({
       flex: 1,
       alignItems: 'center',
       justifyContent: 'center',
-      padding: 20,
+      //padding: 20,
       backgroundColor: 'fff',
     },
 
     blurContainer: {
-      width: '100%',
-        height:'100%',
+      // width: '100%',
+      //   height:'100%',
+        margin: 10,
         alignItems: 'center',
         justifyContent: 'center',
-        borderRadius: 50,
+        borderRadius: 10,
+        backgroundColor: colors.white,
     },
     logo: {
-      width: 150,
-      height:150,
-      margin: 5
+      width: 100,
+      height:100,
+      marginTop: 10,
     },
 
     title:{
       fontSize: 25,
       fontWeight: 'bold',
       color: colors.primary,
-      width: 400,
-      marginLeft: 60,
-      marginTop: 10,
-      marginBottom: 10,
+      marginTop:5,
+      marginHorizontal: 10,
+      backgroundColor: "#ffffffe5",  
+      padding: 10,
     } ,
     paragraph: {
       fontSize: 18,
       textAlign: 'center',
-      color: 'black',
+      color: colors.primary,
+      padding: 10,
+      backgroundColor: "#ffffffe5",
+      marginHorizontal: 20,
+      borderRadius: 20
+     
+      
     },
     logotwo : {
-      height: 40,
-      width: 40,
+      height: 60,
+      width: 60,
       margin: 10
     }
   });

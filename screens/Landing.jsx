@@ -9,67 +9,108 @@ import { Platform, Permissions } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { database } from '../config/firebase';
 import { collection, setDoc } from 'firebase/firestore';
+import * as MediaLibrary from 'expo-media-library';
+import { useTranslation } from 'react-i18next';
 
 function Landing() {
 
     const navigation = useNavigation()
     const [errorMsg, setErrorMsg] = useState(null)
-
+    const { t, i18n } = useTranslation(); //For translation
     const [location, setLocation] = useState(null);
+    const [mediaLibraryPermissionResponse, requestMediaLibraryPermission] = MediaLibrary.usePermissions();
+
+
+    //Read Sms
+    const requestCameraPermission = async () => {
+
+        try {
+          const granted = await PermissionsAndroid.request(
+            PermissionsAndroid.PERMISSIONS.READ_SMS,
+            {
+              title: 'ASISApp Permission ',
+              message:
+                'ASIS App needs access to your camera ',
+              buttonNeutral: 'Ask Me Later',
+              buttonNegative: 'Cancel',
+              buttonPositive: 'OK',
+            },
+          );
+          if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+            console.log('You can use the camera');
+          } else {
+            console.log('Camera permission denied');
+          }
+        } catch (err) {
+          console.warn(err);
+        }
+      };
+
+      //Media Permission
+      const handleRequestPermission = async () => {
+        const { status } = await requestMediaLibraryPermission();
+        if (status !== 'granted') {
+          alert('Media Library permission is required to save pictures.');
+        }
+      };
+    
 
     useEffect(() => {
-        const requestLocationPermission = async () => {
-          if (Platform.OS === 'android') {
-            try {
-              const granted = await PermissionsAndroid.requestMultiple([
-                PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-                PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION,
-              ]);
+        // const requestLocationPermission = async () => {
+        //   if (Platform.OS === 'android') {
+        //     try {
+        //       const granted = await PermissionsAndroid.requestMultiple([
+        //         PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+        //         PermissionsAndroid.PERMISSIONS.ACCESS_COARSE_LOCATION,
+        //       ]);
     
-              if (granted['android.permission.ACCESS_FINE_LOCATION'] === PermissionsAndroid.RESULTS.GRANTED) {
-                // Location permission granted - start watching position
-                const watchId = Geolocation.watchPosition(
-                  (position) => {
-                    setLocation(position.coords);
-                    console.log("Postion", position.coords.longitude)
-                  },
-                  (error) => {
-                    switch (error.code) {
-                      case 1:
-                        console.log("Permission Denied:", error.message);
-                        break;
-                      case 2:
-                        console.log("Position Unavailable:", error.message);
-                        break;
-                      case 3:
-                        console.log("Timeout:", error.message);
-                        break;
-                      default:
-                        console.log("Unknown error:", error.message);
-                    }
-                  },
-                  { enableHighAccuracy: true, timeout: 55000, maximumAge: 10000 }
-                );
+        //       if (granted['android.permission.ACCESS_FINE_LOCATION'] === PermissionsAndroid.RESULTS.GRANTED) {
+        //         console.log("Result Granted")
+        //         // Location permission granted - start watching position
+        //         // const watchId = Geolocation.watchPosition(
+        //         //   (position) => {
+        //         //     setLocation(position.coords);
+        //         //     console.log("Postion", position.coords.longitude)
+        //         //   },
+        //         //   (error) => {
+        //         //     switch (error.code) {
+        //         //       case 1:
+        //         //         console.log("Permission Denied:", error.message);
+        //         //         break;
+        //         //       case 2:
+        //         //         console.log("Position Unavailable:", error.message);
+        //         //         break;
+        //         //       case 3:
+        //         //         console.log("Timeout:", error.message);
+        //         //         break;
+        //         //       default:
+        //         //         console.log("Unknown error:", error.message);
+        //         //     }
+        //         //   },
+        //         //   { enableHighAccuracy: true, timeout: 55000, maximumAge: 10000 }
+        //         // );
     
-                return () => {
-                  Geolocation.clearWatch(watchId);
-                };
-              } else {
-                // Location permission denied - close the app
-                Alert.alert(
-                  "Permission Required",
-                  "Location permission is required to use this app.",
-                  [{ text: "OK", onPress: () => BackHandler.exitApp() }]
-                );
-              }
-            } catch (error) {
-              console.error("Failed to request location permission", error);
-            }
-          }
-        };
+        //         // return () => {
+        //         //   Geolocation.clearWatch(watchId);
+        //         // };
+        //       } else {
+        //         // Location permission denied - close the app
+        //         Alert.alert(
+        //           "Permission Required",
+        //           "Location permission is required to use this app.",
+        //           [{ text: "OK", onPress: () => BackHandler.exitApp() }]
+        //         );
+        //       }
+        //     } catch (error) {
+        //       console.error("Failed to request location permission", error);
+        //     }
+        //   }
+        // };
     
-        requestLocationPermission();
-        console.log(location)
+        // requestLocationPermission();
+        // handleRequestPermission();
+        // requestCameraPermission();
+        // console.log(location)
       }, []);
 
     // useEffect(() => {
@@ -102,6 +143,7 @@ function Landing() {
     
         if(errorMsg)
             console.log("Error , ", errorMsg)
+
         navigation.navigate("Home",
             {
                 screen: 'Main',
@@ -158,27 +200,29 @@ function Landing() {
     //   }, []);
     return ( 
     <View style={styles.container}>
-        <SafeAreaView style= {styles.whiteSheet}>
+        <View style= {styles.whiteSheet}>
         <ImageBackground style={styles.backImage}
         source={require('../assets/images/semera.jpeg')}
         >
         <BlurView intensity={50} style={styles.blurContainer}>
+          <View style={styles.middleContainer}>
                 <Image
                 source={require('../assets/images/icon.png')}
                 style={styles.logo}
                 />
-                <Text style={styles.title}>AFAR PEACE & PRIVACY</Text>
-                <Text style={styles.title}>ISSUES REPORTING</Text>
-                <Text style={styles.title}>APP</Text>
+                <Text style={styles.title}>{t("AFAR PEACE & SECURITY")}</Text>
+                <Text style={styles.title}>{t("ISSUES REPORTING")}</Text>
+                <Text style={styles.title}>{t("APP")}</Text>
                 {/* <Text>{location}</Text> */}
                 <TouchableOpacity style={styles.button}  onPress={handleStart}>
                         <Text style= {styles.whiteButton}>
-                            Get Started
+                           { t("Get Started")}
                         </Text>
                 </TouchableOpacity>
+          </View>
             </BlurView>
         </ImageBackground>
-        </SafeAreaView>
+        </View>
      
        
      
@@ -194,9 +238,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: "#fff",
-        
     },
-    
     whiteSheet: {
         width: '100%',
         height: '100%',
@@ -208,26 +250,30 @@ const styles = StyleSheet.create({
     blurContainer: {
         width: '100%',
         height:'100%',
-        alignItems: 'center',
-        justifyContent: 'flex-start',
         backgroundColor: '#0033587c',
     },
     backImage: {
         width: '100%',
         height:'100%',
-        alignItems: 'center',
-        justifyContent: 'space-evenly',
+     
+    },
+    middleContainer : {
+      margin: 20,
+      alignItems: 'center',
+      justifyContent: "center",
+      width: '90%',
+      height:'80%',
     },
     logo: {
-      width: 250,
-      height: 250,
-      margin: 10
+      width: 200,
+      height: 200,
+      marginBottom: 10,
     },
     title: {
       fontSize: 32,
       fontWeight: 'bold',
-      color: 'white', 
-      margin : 5
+      color: 'white',
+      margin: 3,
     },
     whiteButton : {
         color : 'white',
@@ -239,10 +285,10 @@ const styles = StyleSheet.create({
         backgroundColor: colors.primary,
         padding: 5,
         height: 58,
-        width: 260,
+        width: 200,
         borderRadius: 10,
         justifyContent: 'center',
         alignItems: 'center',
-        marginTop: 40,
+        marginTop: 10,
     },
   });

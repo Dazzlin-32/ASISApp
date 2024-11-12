@@ -1,18 +1,16 @@
 import React, { useCallback, useEffect, useState, useContext } from "react";
-import { View, StyleSheet, TouchableOpacity, ScrollView, Image } from "react-native";
+import { View, StyleSheet, TouchableOpacity, ScrollView, Image, ImageBackground } from "react-native";
 import {  Card, Text } from 'react-native-paper';
-
-import ContactRow from "../components/ContactRow";
 import { colors } from '../config/constants';
-//import Cell from "../components/Cell";
 import { collection, getDocs } from 'firebase/firestore';
 import { database } from '../config/firebase';
 import { ImportantContext} from '../App';
+import { useTranslation } from "react-i18next";
 
 
 const NewsList = ({ navigation }) => {
 
-
+    const {t} = useTranslation()
     const context = useContext(ImportantContext)
     const [broadcasts, setBroadcasts] = useState([])
     const [oldBroadcastsLength, setOldBroadCastsLength] = useState()
@@ -45,6 +43,7 @@ const NewsList = ({ navigation }) => {
        
 
     // }, [broadcasts])
+
 
     useEffect(() => {
         const fetchBroadcasts = async () => {
@@ -81,14 +80,20 @@ const NewsList = ({ navigation }) => {
         return () => {
           setWaiting(false);
         };
-      }, []);
+      }, [oldBroadcastsLength]);
       
     
 
 
     return (
-        <View>
+        <View><ImageBackground 
+        source={require('../assets/images/wallpaper4.png')}
+        imageStyle={{opacity: 0.3, height: "100%", width: "100%", borderTopLeftRadius: 40, borderTopRightRadius: 40,}}
+          style= {{ width: "100%", height: "100%", borderRadius: 90,}}
+        >
+           
             <ScrollView style={styles.container} >
+                
               
                 {
                     waiting && broadcasts.map( (broadcast, index) => (
@@ -113,9 +118,9 @@ const NewsList = ({ navigation }) => {
                     }}>
                         <Card style={styles.contactRow}>
                             <Card.Content>
-                                <Card.Cover source={broadcast.imageUrl}/>
+                                <Card.Cover source={{uri :broadcast.imageUrl}} style= {{marginBottom: 15}} />
                                 <Text style={{color: colors.black}} variant="titleLarge">{broadcast.title}</Text>
-                                <Text style={{color: colors.black}}variant="bodyMedium">{broadcast.description?.slice(0,125)}</Text>
+                                <Text style={{color: colors.black}}variant="bodyMedium">{broadcast.description?.slice(0,125)} ...{t("Read more")} </Text>
                             </Card.Content>
                         </Card>
                     </TouchableOpacity>
@@ -126,16 +131,17 @@ const NewsList = ({ navigation }) => {
                     !waiting && 
                     <Text>Loading ... </Text>
                 }
-                
 
-            </ScrollView>
 
             <TouchableOpacity style={styles.somestyles}>
                 <Image 
                 style={styles.logoImage}
                 source={require('../assets/images/roundlogo.png')}/>
-                <Text style={styles.title}>AFAR PEACE & PRIVACY ISSUES REPORTING APP </Text>
+                <Text style={styles.title}>{t("AFAR PEACE AND PRIVACY ISSUES REPORTING APP")} </Text>
             </TouchableOpacity>
+            </ScrollView>
+
+        </ImageBackground>
 
         </View>
     )
@@ -148,7 +154,7 @@ const styles = StyleSheet.create({
 
     contactRow: {
         backgroundColor: colors.white,
-        borderWidth: StyleSheet.hairlineWidth,
+        borderWidth: 1,
         borderColor: colors.primary,
         borderRadius: 10,
         marginHorizontal: 20,
@@ -163,7 +169,7 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 10,
         color: colors.black, 
-        margin : 1,
+        margin : 10,
         width: 250,
       },
     logoImage : {
